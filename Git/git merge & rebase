@@ -1,0 +1,65 @@
+Git rebase:
+
+28  mkdir git-rebase
+   29  cd git-rebase/
+   30  ls
+   31  git init
+   32  echo first file > file1
+   33  git add .
+   34  git commit -m "first commit in master"
+   35  git branch feature
+   36  git checkout feature
+   37  git log
+   38  echo second file > file2
+   39  git add .
+   40  git commit -m "first commit in feature"
+   41  git checkout master
+   42  echo third file > file3
+   43  git add .
+   44  git commit -m "second commit in master"
+   45  git log --oneline
+   
+ubuntu@ip-172-31-80-156:~/git-rebase$ git log --oneline --graph
+* ffe7e49 (HEAD -> feature) first commit in feature
+* aa0068e (master) second commit in master
+* deed44f first commit in master
+
+Git merge:
+
+mkdir git-merge
+   99  cd git-merge/
+  100  git init
+  101  echo first file > file1
+  102  ll
+  103  git status
+  104  git add .
+  105  git commit -m "first commit in master"
+  106  git log --oneline
+  107  git branch feature
+  108  git status
+  109  git branch
+  110  git checkout feature
+  111  git log --oneline
+  112  echo second file > file2
+  113  ls
+  114  git add .
+  115  git commit -m "first commit in feature"
+  116  git log --oneline
+  117  git log --oneline --graph
+  118  git checkout master
+  119  echo third file > file3
+  120  git add .
+  121  git commit -m "second commit in master"
+  122  git log --oneline --graph
+  123  git status
+  124  git merge feature
+  125  ls
+  126  git log --oneline --graph
+
+ubuntu@ip-172-31-80-156:~/git-merge$ git log --oneline --graph
+*   39df10b (HEAD -> master) Merge branch 'feature'
+|\  
+| * 3de3e98 (feature) first commit in feature
+* | c6f0179 second commit in master
+|/  
+* 56088eb first commit in master
