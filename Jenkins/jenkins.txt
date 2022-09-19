@@ -1,0 +1,42 @@
+sudo apt install maven
+
+mvn archetype:generate
+
+wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.0.23/bin/apache-tomcat-10.0.23.tar.gz
+
+tar xvfz apache-tomcat-10.0.23.tar.gz
+
+cd apache-tomcat-10.0.23/bin
+
+./startup.sh
+
+============================================================================================
+
+sudo apt-get update
+
+sudo apt-get install openjdk-8-jdk
+
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ >  /etc/apt/sources.list.d/jenkins.list'
+
+sudo apt-get update
+
+sudo apt-get install jenkins -y
+
+sudo service jenkins status
+
+systemctl start jenkins
+
+systemctl status jenkins
+
+sudo ufw allow 8080
+
+sudo apt-get install docker.io
+
+sudo chmod 777 /var/run/docker.sock
+
+=========================================================================
+sudo docker rm -f $(sudo docker ps -a -q)
+sudo docker build /home/ubuntu/workspace/Test -t test
+sudo docker run -it -p 82:80 -d test
