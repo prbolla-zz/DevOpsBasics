@@ -40,6 +40,9 @@ Create branch
 Switch to a branch
 # git checkout <name_of_branch>
 
+Creat and checkout to the new branch
+# git checkout -b <name_of_branch>
+
 Check the commit logs
 # git log
 
