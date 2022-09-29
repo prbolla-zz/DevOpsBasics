@@ -1,0 +1,19 @@
+#MySQL setup
+
+docker run --name mysql -p 3306:3306  -e MYSQL_ROOT_PASSWORD=password -d mysql
+
+docker exec -it mysql bash
+
+mysql -uroot -ppassword
+
+create database intellipaat;
+
+use intellipaat;
+
+create table batch (id int not null, name text);
+
+show tables;
+ 
+insert into batch (id, name) values (001, 'John');
+
+exit
