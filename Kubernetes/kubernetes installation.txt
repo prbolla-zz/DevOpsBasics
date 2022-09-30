@@ -1,0 +1,27 @@
+Both on master and slave - with root
+
+sudo su
+apt-get update  
+apt-get install docker.io -y
+service docker restart  
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -  
+echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
+apt-get update
+apt install kubeadm=1.20.0-00 kubectl=1.20.0-00 kubelet=1.20.0-00 -y  
+
+On master: 
+
+kubeadm init --pod-network-cidr=192.168.0.0/16
+>> from the above output get the kubeadm join token and paste into worker node
+
+exit from root
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Note: In case we want to retrieve the join token use the below-mentioned command.
+kubeadm token create --print-join-command
+
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
