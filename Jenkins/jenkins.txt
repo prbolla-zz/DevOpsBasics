@@ -11,6 +11,12 @@ tar xvfz apache-tomcat-10.0.23.tar.gz
 cd apache-tomcat-10.0.23/bin
 
 ./startup.sh
+===========================================================================================
+tomcat-users.xml
+
+<role rolename="manager-gui"/>
+<role rolename="manager-script"/>
+<user username="admin" password="password" roles="manager-gui, manager-script"/>
 
 ============================================================================================
 
