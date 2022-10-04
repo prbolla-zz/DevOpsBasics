@@ -24,3 +24,20 @@ kubeadm token create --print-join-command
 
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
+Ingress Controller: 
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/baremetal/deploy.yaml
+
+Kubernetes Dashboard:
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta7/aio/deploy/recommended.yaml
+
+kubectl create serviceaccount cluster-admin-dashboard-sa
+
+kubectl create clusterrolebinding cluster-admin-dashboard-sa \
+--clusterrole=cluster-admin \
+--serviceaccount=default:cluster-admin-dashboard-sa
+
+TOKEN=$(kubectl describe secret $(kubectl -n kube-system get secret | awk '/^cluster-admin-dashboardsa-token-/{print $1}') | awk '$1=="token:"{print $2}')
+
+echo $TOKEN
