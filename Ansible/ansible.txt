@@ -1,0 +1,218 @@
+ansible installation
+
+sudo apt-get update
+sudo apt install software-properties-common
+sudo apt-add-repository pps:ansible/ansible
+sudo apt update
+sudo apt install ansible
+
+on hosts
+sudo apt-get update
+sudo apt install python3
+
+keyless SSH
+on master: ssh-keygen
+
+on slave: sudo vi .ssh/authorized_keys
+
+ansible <group_name> -m ping
+ansible all -m ping
+========================================================================================
+host configuration
+
+/etc/ansible/hosts
+[servers]
+host1 ansible_ssh_host=<ip_address>
+========================================================================================
+ansible facts
+
+
+ansible-doc -l  # list of modules
+ansible-doc -l | wc -l  #count modules
+ansible-doc apt   # description of module
+docs.ansible.com modules list   # at google
+=======================================================================================
+
+Playbooks
+
+#######playbook-1
+
+---
+
+- hosts: dev
+  tasks:
+    - name: create a file
+      file:
+        path: /tmp/file-playbook1
+        state: touch
+        
+#######playbook-2
+
+---
+
+- hosts: dev
+  tasks:
+    - name: create a file
+      file:
+        path: /tmp/file-playbook1
+        state: touch
+        
+#######playbook-3 loops
+
+---
+
+-  hosts : dev
+   become: true
+   name: playbook-install
+   tasks:
+     - name: Install Packages
+       apt:
+           name: "{{ item }}"
+           state: latest
+       with_items:
+           - vim
+           - git
+           - curl
+           
+########playbook-4 array
+
+---
+
+-  hosts : test
+   become: true
+   vars:
+       packages: [ 'vim', 'git', 'curl' ]
+   tasks:
+     - name: Install Packages
+       apt:
+           name: "{{ item }}"
+           state: latest
+       with_items: "{{ packages }}"
+       
+######playbook-5 loop with create files
+
+---
+- hosts: dev
+  tasks:
+    - name: create files
+      file:
+        path: /tmp/{{item}}
+        state: touch
+      with_items:
+        - file1
+        - file2
+        - file3
+        
+=======================================================================================
+
+
+--- 
+  name: play1
+  hosts: localhost
+  tasks:
+  - name: execute a command "date"
+    command: date
+  - name: execute a script on server
+    script: test_script.sh
+  - name: Install httpd service
+    yum: 
+      name: httpd
+      state: present
+  - name: start web server
+    service: 
+      name=httpd
+      state: started
+=========================================================================================
+Ansible role
+
+ubuntu@ip-172-31-80-195:~/apache$ tree
+.
+├── README.md
+├── defaults
+│   └── main.yml
+├── files
+│   ├── apache2.conf
+│   └── copy.html
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── tasks
+│   ├── configure.yml
+│   ├── install.yml
+│   ├── main.yml
+│   └── service.yml
+├── templates
+├── tests
+│   ├── inventory
+│   └── test.yml
+└── vars
+    └── main.yml
+   
+8 directories, 13 files
+
+ubuntu@ip-172-31-80-195:~/apache$ ls files
+apache2.conf  copy.html
+
+ubuntu@ip-172-31-80-195:~/apache$ ls handlers/
+main.yml
+
+ubuntu@ip-172-31-80-195:~/apache$ cat handlers/main.yml
+---
+# handlers file for apache
+  - name: restart apache2 service
+    service: name=apache2 state=restarted
+
+ubuntu@ip-172-31-80-195:~/apache$ ls tasks/
+configure.yml  install.yml  main.yml  service.yml
+
+ubuntu@ip-172-31-80-195:~/apache$ cat tasks/main.yml
+---
+# tasks file for apache
+- include: install.yml
+- include: configure.yml
+- include: service.yml
+
+ubuntu@ip-172-31-80-195:~/apache$ cat tasks/install.yml
+---
+  - name: install apache2
+    apt: name=apache2 update_cache=yes state=latest
+
+ubuntu@ip-172-31-80-195:~/apache$ cat tasks/configure.yml
+---
+#configure apache2.conf and send copy.html file
+  - name: apache2.conf file
+    copy: src=apache2.conf dest=/etc/apache2/
+    notify:
+     - restart apache2 service
+
+  - name: send copy.html file
+    copy: src=copy.html dest=/var/www/html/
+
+ubuntu@ip-172-31-80-195:~/apache$ cat tasks/service.yml
+---
+  - name: starting apache2 service
+    service: name=apache2 state=started
+
+ubuntu@ip-172-31-80-195:~/apache$
+
+#call the role in the playbook
+---
+  - hosts: servers
+    become: yes
+    roles:
+      - apache
+
+---
+  - hosts: servers
+    sudo: yes
+    tasks:
+    - debug:
+        msg: "before we run our role"
+    - import_role:
+        name: apache
+    - include_role:
+        name: apache
+    - debug:
+        msg: "after we ran our role"	
+      
