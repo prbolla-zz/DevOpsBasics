@@ -1,0 +1,38 @@
+============================tasks/main.yml==========================
+---
+# tasks file for apache
+   - name: install apache2
+     apt: 
+       name: apache2
+       state: latest
+
+   - name: configure apache
+     copy: 
+       src: apache2.conf
+       dest: /etc/apache2/
+     notify: 
+       - restart apache2 service
+ 
+   - name: copy index.html
+     copy: 
+       src: index.html
+       dest: /var/www/html
+ 
+   - import_tasks: service.yml
+ 
+===========================tasks/service.yml=========================
+---
+# check if the service is running or not
+ - name: check if apache2 is running or not
+   service: 
+     name: apache2
+     state: started
+	
+==========================handlers/mail.yml===========================
+---
+# handlers file for apache
+ - name: restart apache2 service
+   service:
+     name: apache2
+     state: restarted
+	  
