@@ -3,7 +3,7 @@
 sudo apt update
 
 sudo apt install openjdk-8-jdk
-
+----------------------------------------ElasticSearch--------------------------------------
 # Add Elastic repo
 
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
@@ -46,7 +46,7 @@ sudo systemctl enable elasticsearch.service
 
 # Test Elasticsearch 
 curl -X GET "localhost:9200"
-
+----------------------------------------Kibana-------------------------------------------
 # Install Kibana
 sudo apt install kibana
 
@@ -63,15 +63,13 @@ sudo systemctl start kibana
 sudo systemctl enable kibana
 
 http://<server_ip>:5601
-
+--------------------------------------Logstash------------------------------------------
 # Install Logstash
-sudo apt install logstash
+wget https://artifacts.elastic.co/downloads/logstash/logstash-8.4.3-linux-x86_64.tar.gz   
 
-sudo systemctl start logstash
+tar xvf logstash-8.4.3-linux-x86_64.tar.gz 
 
-sudo systemctl enable logstash
-
-sudo systemctl status logstash
+sudo mv logstash-8.4.3 /etc/logstash 
 
 # Configure Logstash
 sudo vi /etc/logstash/conf.d/
