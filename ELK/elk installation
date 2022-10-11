@@ -1,0 +1,106 @@
+# Install Java
+
+sudo apt update
+
+sudo apt install openjdk-8-jdk
+
+# Add Elastic repo
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+sudo apt install apt-transport-https
+
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee –a /etc/apt/sources.list.d/elastic-7.x.list
+
+# Install Elasticsearch
+
+sudo apt update
+
+sudo apt install elasticsearch
+
+# Configure Elasticsearch
+
+sudo vi /etc/elasticsearch/elasticsearch.yml
+
+Uncomment below lines,
+#network.host: 192.168.0.1 
+#http.port: 9200
+
+And make network host as 0.0.0.0
+network.host: 0.0.0.0
+
+In the Discovery section, add below lines
+discovery.type: single-node
+
+# Change the JVM heap size
+sudo vi /etc/elasticsearch/jvm.options
+
+-Xms1g
+-Xmx1g
+
+sudo systemctl start elasticsearch.service
+
+systemctl status elasticsearch.service 
+
+sudo systemctl enable elasticsearch.service
+
+# Test Elasticsearch 
+curl -X GET "localhost:9200"
+
+# Install Kibana
+sudo apt install kibana
+
+# Configure Kibana
+sudo vi /etc/kibana/kibana.yml
+
+Uncomment below lines
+#server.port: 5601
+#server.host: "your-hostname"
+#elasticsearch.hosts: ["http://localhost:9200"]
+
+sudo systemctl start kibana
+
+sudo systemctl enable kibana
+
+http://<server_ip>:5601
+
+# Install Logstash
+sudo apt install logstash
+
+sudo systemctl start logstash
+
+sudo systemctl enable logstash
+
+sudo systemctl status logstash
+
+# Configure Logstash
+sudo vi /etc/logstash/conf.d/
+
+Below lines would be added,
+path.data: /var/lib/logstash
+path.config: /etc/logstash/config/*.conf
+path.logs: /var/log/logstash
+
+# Install Filebeat
+sudo apt install filebeat
+
+# Configure Filebeat
+sudo vi /etc/filebeat/filebeat.yml
+
+Comment following lines in elasticsearch output section
+# output.elasticsearch:
+   # Array of hosts to connect to.
+   # hosts: ["localhost:9200"]
+
+Uncomment following lines under logstash output section
+# output.logstash
+     # hosts: ["localhost:5044"]
+
+sudo filebeat modules enable system
+
+sudo systemctl start filebeat
+
+sudo systemctl enable filebeat
+
+# Test elastic search
+curl -XGET http://localhost:9200/_cat/indices?v
