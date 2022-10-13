@@ -72,7 +72,7 @@ tar xvf logstash-8.4.3-linux-x86_64.tar.gz
 sudo mv logstash-8.4.3 /etc/logstash 
 
 # Configure Logstash
-sudo vi /etc/logstash/conf.d/
+sudo vi /etc/logstash/config/logstash.yml
 
 Below lines would be added,
 path.data: /var/lib/logstash
