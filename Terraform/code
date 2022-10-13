@@ -1,0 +1,93 @@
+provider "aws" {
+  region     = "us-east-1"
+  access_key = "AKIAVQWXI4AQHKDNIKNZ"
+  secret_key = "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"
+}
+
+resource "aws_key_pair" "deployer"{
+  key_name = "mac-key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCzZlFNEEPEShjXOo2WpAEpHFobHGb3gv2PACCIFxALjRkIdDl89SAn8+Jy4q+eB5nK+5IGbCcg9cylqjU4zuiHe8ErdEQzGqhDE6IZxdFaP629BMft8hbg6iDS+w1vT1bO37jar70MhFIIiOzAeOMnh8O6lV5IBVDrfry4O6nLri8IL+1tAbsxV+6HcL/LkZUr/Rxlp93oLX34WAzGCunE7t4vXcz/60shni2n/Y7Rvdbq0RParmnIPrUpL0rK+NPopk/iwZhIvBqbRUHUQsoPA+XB5DKnSvkRknhPalHORVOhJ5axfC9ZpsJ/ujgQXSDMWBIS0JI/B7TUia7Rb6vcICr64smYrDV4QQU9zxh8w7aNfNPQ6MhMW6eegNoSYvNYHAkQc96AiUYBYG5viySgdKSKS0gqtElTAxpBzVa/cdUb6bd5xKmaLEOfKqpfT6qRRZsPHRgiumCrD9MUw+TZOTwq9K5p2hYGjdGQw2iptFNnW/DsBqD1tXK5W/vprpM= ubuntu@ip-172-31-90-145"
+}
+
+resource "aws_instance" "firstec2" {
+ami = "ami-0ba60995c1589da9d"
+instance_type = "t2.micro"
+key_name = "" #This can be downloaded from your AWS Account
+subnet_id = "${aws_subnet.main.id}" # from the subnet resource aws_subnet first
+tags = {
+Name = "knode"
+}
+user_data = file("./install.sh")
+}
+
+
+resource "aws_vpc" "main" {
+  cidr_block       = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "main"
+  }
+}
+
+resource "aws_subnet" "main" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+
+  tags = {
+    Name = "Main"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main"
+  }
+}
+
+
+resource "aws_security_group" "security_group" {
+  name        = "allow_tls"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = [aws_vpc.main.cidr_block]
+  }
+
+  egress {
+    description = "all traffic"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_tls"
+  }
+}
+  resource "aws_route_table" "example" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "example"
+  }
+}
+
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.main.id
+  route_table_id = aws_route_table.example.id
+}
