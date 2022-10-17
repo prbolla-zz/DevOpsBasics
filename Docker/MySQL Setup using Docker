@@ -6,9 +6,9 @@ docker exec -it mysql bash
 
 mysql -uroot -ppassword
 
-create database intellipaat;
+create database devops;
 
-use intellipaat;
+use devops;
 
 create table batch (id int not null, name text);
 
