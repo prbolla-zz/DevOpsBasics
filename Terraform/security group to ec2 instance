@@ -1,0 +1,13 @@
+data "aws_security_group" "testsg" {
+  id = "sg-0f9fb8b59aebac240"
+}
+
+resource "aws_instance" "myec2" {
+  ami           = "ami-033b95fb8079dc481"
+  instance_type = "t2.micro"
+  tags = {
+    "Name" = "terra"
+  }
+  key_name               = aws_key_pair.sshkey.id
+  vpc_security_group_ids = [data.aws_security_group.testsg.id]
+}
